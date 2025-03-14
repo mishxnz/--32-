@@ -1,0 +1,203 @@
+{\rtf1\ansi\ansicpg1251\deff0\nouicompat\deflang1049{\fonttbl{\f0\fnil\fcharset204 Calibri;}{\f1\fnil\fcharset0 Aptos;}{\f2\fnil\fcharset0 Times New Roman;}{\f3\fnil\fcharset204 Times New Roman;}{\f4\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sl262\slmult0\qc\f0\fs36\lang1058\'cc\'e8\'f5\'e0\'e9\'eb\'ee \'d1\'e8\'ec\'e1\'b3\'f0\'f6\'e5\'e2 \'c7-32 \par
+\'ee\'ed\'eb\'e0\'e9\'ed \'e1\'b3\'e1\'eb\'b3\'ee\'f2\'e5\'ea\'e0\par
+\f1\fs20\lang1033\par
+using System;\par
+using System.Collections.Generic;\par
+using System.IO;\par
+\par
+class Program\par
+\{\f2\par
+    static Dictionary<string, string> users = new Dictionary<string, string>();  // Email - \f3\lang1049\'cf\'e0\'f0\'ee\'eb\'fc\par
+\f2\lang1033     static Dictionary<string, string> usersRoles = new Dictionary<string, string>();  // Email - \f3\lang1049\'d0\'ee\'eb\'fc (admin/client)\par
+\f2\lang1033     static Dictionary<int, string> books = new Dictionary<int, string>();  // id - \f3\lang1049\'cd\'e0\'e7\'e2\'e0\'ed\'e8\'e5 \'ea\'ed\'e8\'e3\'e8\par
+\f2\lang1033     static Dictionary<string, List<int>> userFavorites = new Dictionary<string, List<int>>();  // Email - \f3\lang1049\'d1\'ef\'e8\'f1\'ee\'ea \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'fb\'f5 \'ea\'ed\'e8\'e3\par
+\f2\lang1033     static string currentUserEmail = null;  // \f3\lang1049\'d2\'e5\'ea\'f3\'f9\'e8\'e9 \'ef\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'fc\par
+\f2\lang1033     static int bookIdCounter = 1;  // \f3\lang1049\'d1\'f7\'b8\'f2\'f7\'e8\'ea ID \'e4\'eb\'ff \'ea\'ed\'e8\'e3\par
+\f2\lang1033\par
+    static void Main()\par
+    \{\par
+        while (true)\par
+        \{\par
+                        if (currentUserEmail == null)\par
+            \{\par
+                Console.WriteLine("1. \f3\lang1049\'d0\'e5\'e3\'e8\'f1\'f2\'f0\'e0\'f6\'e8\'ff");\par
+\f2\lang1033                 Console.WriteLine("2. \f3\lang1049\'cb\'ee\'e3\'e8\'ed");\par
+\f2\lang1033                 Console.WriteLine("0. \f3\lang1049\'c2\'fb\'f5\'ee\'e4");\par
+\f2\lang1033                 Console.Write("\f3\lang1049\'c2\'fb\'e1\'e5\'f0\'e8\'f2\'e5 \'e4\'e5\'e9\'f1\'f2\'e2\'e8\'e5: ");\par
+\f2\lang1033                 string input = Console.ReadLine();\par
+\par
+                if (input == "1") Register();\par
+                else if (input == "2") Login();\par
+                else if (input == "0") break;\par
+                else Console.WriteLine("\f3\lang1049\'cd\'e5\'e2\'e5\'f0\'ed\'fb\'e9 \'e2\'e2\'ee\'e4. \'cf\'ee\'ef\'f0\'ee\'e1\'f3\'e9\'f2\'e5 \'f1\'ed\'ee\'e2\'e0.");\par
+\f2\lang1033             \}\par
+            else\par
+            \{\par
+                               string role = usersRoles[currentUserEmail];\par
+                Console.WriteLine("\\n3. \f3\lang1049\'d1\'ef\'e8\'f1\'ee\'ea \'ea\'ed\'e8\'e3");\par
+\f2\lang1033                 Console.WriteLine("4. \f3\lang1049\'c4\'ee\'e1\'e0\'e2\'e8\'f2\'fc \'ea\'ed\'e8\'e3\'f3");\par
+\f2\lang1033                 Console.WriteLine("5. \f3\lang1049\'d3\'e4\'e0\'eb\'e8\'f2\'fc \'ea\'ed\'e8\'e3\'f3");\par
+\f2\lang1033                 Console.WriteLine("6. \f3\lang1049\'c4\'ee\'e1\'e0\'e2\'e8\'f2\'fc \'ea\'ed\'e8\'e3\'f3 \'e2 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e5");\par
+\f2\lang1033                 Console.WriteLine("7. \f3\lang1049\'d3\'e4\'e0\'eb\'e8\'f2\'fc \'ea\'ed\'e8\'e3\'f3 \'e8\'e7 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e3\'ee");\par
+\f2\lang1033                 Console.WriteLine("8. \f3\lang1049\'c2\'fb\'f5\'ee\'e4");\par
+\f2\lang1033\par
+                            if (role == "admin")\par
+                \{\par
+                    Console.WriteLine("9. \f3\lang1049\'c2\'fb\'e3\'f0\'f3\'e7\'e8\'f2\'fc \'ea\'ed\'e8\'e3\'e8 \'e2 CSV");\par
+\f2\lang1033                     Console.WriteLine("10. \f3\lang1049\'c8\'e7\'ec\'e5\'ed\'e8\'f2\'fc \'f0\'ee\'eb\'fc \'ef\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'ff");\par
+\f2\lang1033                 \}\par
+\par
+                Console.Write("\f3\lang1049\'c2\'fb\'e1\'e5\'f0\'e8\'f2\'e5 \'e4\'e5\'e9\'f1\'f2\'e2\'e8\'e5: ");\par
+\f2\lang1033                 string input = Console.ReadLine();\par
+                if (input == "3") ShowBooks();\par
+                else if (input == "4" && role == "admin") AddBook();\par
+                else if (input == "5" && role == "admin") DeleteBook();\par
+                else if (input == "6") AddToFavorites();\par
+                else if (input == "7") RemoveFromFavorites();\par
+                else if (input == "8") \{ currentUserEmail = null; Console.WriteLine("\f3\lang1049\'c2\'fb\'f5\'ee\'e4 \'e8\'e7 \'f1\'e8\'f1\'f2\'e5\'ec\'fb."); \}\par
+\f2\lang1033                 else if (input == "9" && role == "admin") ExportBooksToCSV();\par
+                else if (input == "10" && role == "admin") ChangeUserRole();\par
+                else Console.WriteLine("\f3\lang1049\'cd\'e5\'e2\'e5\'f0\'ed\'fb\'e9 \'e2\'e2\'ee\'e4. \'cf\'ee\'ef\'f0\'ee\'e1\'f3\'e9\'f2\'e5 \'f1\'ed\'ee\'e2\'e0.");\par
+\f2\lang1033             \}\par
+        \}\par
+    \}\par
+\par
+    static void Register()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 email: ");\par
+\f2\lang1033         string email = Console.ReadLine();\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 \'ef\'e0\'f0\'ee\'eb\'fc: ");\par
+\f2\lang1033         string password = Console.ReadLine();\par
+\par
+        if (!users.ContainsKey(email))\par
+        \{\par
+            users.Add(email, password);\par
+            usersRoles[email] = "client";\par
+            userFavorites[email] = new List<int>();\par
+            Console.WriteLine($"\f3\lang1049\'cf\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'fc \{email\} \'e7\'e0\'f0\'e5\'e3\'e8\'f1\'f2\'f0\'e8\'f0\'ee\'e2\'e0\'ed!");\par
+\f2\lang1033         \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'cf\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'fc \'f1 \'f2\'e0\'ea\'e8\'ec email \'f3\'e6\'e5 \'f1\'f3\'f9\'e5\'f1\'f2\'e2\'f3\'e5\'f2.");\par
+\f2\lang1033         \}\par
+    \}\par
+\par
+    static void Login()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 email: ");\par
+\f2\lang1033         string email = Console.ReadLine();\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 \'ef\'e0\'f0\'ee\'eb\'fc: ");\par
+\f2\lang1033         string password = Console.ReadLine();\par
+\par
+        if (users.ContainsKey(email) && users[email] == password)\par
+        \{\par
+            currentUserEmail = email;\par
+            Console.WriteLine($"\f3\lang1049\'cf\'f0\'e8\'e2\'e5\'f2, \{email\}! \'c2\'fb \'e2\'ee\'f8\'eb\'e8 \'e2 \'f1\'e8\'f1\'f2\'e5\'ec\'f3.");\par
+\f2\lang1033         \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'cd\'e5\'e2\'e5\'f0\'ed\'fb\'e9 email \'e8\'eb\'e8 \'ef\'e0\'f0\'ee\'eb\'fc.");\par
+\f2\lang1033         \}\par
+    \}\par
+\par
+    static void ShowBooks()\par
+    \{\par
+        Console.WriteLine("\f3\lang1049\'d1\'ef\'e8\'f1\'ee\'ea \'e4\'ee\'f1\'f2\'f3\'ef\'ed\'fb\'f5 \'ea\'ed\'e8\'e3:");\par
+\f2\lang1033         foreach (var book in books)\par
+        \{\par
+            Console.WriteLine($"\{book.Key\}. \{book.Value\}");\par
+        \}\par
+    \}\par
+\par
+    static void AddBook()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 \'ed\'e0\'e7\'e2\'e0\'ed\'e8\'e5 \'ea\'ed\'e8\'e3\'e8: ");\par
+\f2\lang1033         string bookName = Console.ReadLine();\par
+        books.Add(bookIdCounter++, bookName);\par
+        Console.WriteLine($"\f3\lang1049\'ca\'ed\'e8\'e3\'e0 '\{bookName\}' \'e4\'ee\'e1\'e0\'e2\'eb\'e5\'ed\'e0.");\par
+\f2\lang1033     \}\par
+\par
+    static void DeleteBook()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 id \'ea\'ed\'e8\'e3\'e8 \'e4\'eb\'ff \'f3\'e4\'e0\'eb\'e5\'ed\'e8\'ff: ");\par
+\f2\lang1033         int bookId;\par
+        if (int.TryParse(Console.ReadLine(), out bookId) && books.ContainsKey(bookId))\par
+        \{\par
+            books.Remove(bookId);\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'f3\'e4\'e0\'eb\'e5\'ed\'e0.");\par
+\f2\lang1033         \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'f1 \'f2\'e0\'ea\'e8\'ec id \'ed\'e5 \'ed\'e0\'e9\'e4\'e5\'ed\'e0.");\par
+\f2\lang1033         \}\par
+    \}\par
+\par
+    static void AddToFavorites()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 id \'ea\'ed\'e8\'e3\'e8 \'e4\'eb\'ff \'e4\'ee\'e1\'e0\'e2\'eb\'e5\'ed\'e8\'ff \'e2 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e5: ");\par
+\f2\lang1033         int bookId;\par
+        if (int.TryParse(Console.ReadLine(), out bookId) && books.ContainsKey(bookId))\par
+        \{\par
+            userFavorites[currentUserEmail].Add(bookId);\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'e4\'ee\'e1\'e0\'e2\'eb\'e5\'ed\'e0 \'e2 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e5.");\par
+\f2\lang1033         \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'f1 \'f2\'e0\'ea\'e8\'ec id \'ed\'e5 \'ed\'e0\'e9\'e4\'e5\'ed\'e0.");\par
+\f2\lang1033         \}\par
+    \}\par
+\par
+    static void RemoveFromFavorites()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 id \'ea\'ed\'e8\'e3\'e8 \'e4\'eb\'ff \'f3\'e4\'e0\'eb\'e5\'ed\'e8\'ff \'e8\'e7 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e3\'ee: ");\par
+\f2\lang1033         int bookId;\par
+        if (int.TryParse(Console.ReadLine(), out bookId) && userFavorites[currentUserEmail].Contains(bookId))\par
+        \{\par
+            userFavorites[currentUserEmail].Remove(bookId);\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'f3\'e4\'e0\'eb\'e5\'ed\'e0 \'e8\'e7 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e3\'ee.");\par
+\f2\lang1033         \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'ca\'ed\'e8\'e3\'e0 \'f1 \'f2\'e0\'ea\'e8\'ec id \'ed\'e5 \'ed\'e0\'e9\'e4\'e5\'ed\'e0 \'e2 \'e2\'e0\'f8\'e5\'ec \'f1\'ef\'e8\'f1\'ea\'e5 \'e8\'e7\'e1\'f0\'e0\'ed\'ed\'ee\'e3\'ee.");\par
+\f2\lang1033         \}\par
+    \}\par
+    static void ExportBooksToCSV()\par
+    \{\par
+        using (StreamWriter writer = new StreamWriter("books.csv"))\par
+        \{\par
+            foreach (var book in books)\par
+            \{\par
+                writer.WriteLine($"\{book.Key\}, \{book.Value\}");\par
+            \}\par
+        \}\par
+        Console.WriteLine("\f3\lang1049\'d1\'ef\'e8\'f1\'ee\'ea \'ea\'ed\'e8\'e3 \'e2\'fb\'e3\'f0\'f3\'e6\'e5\'ed \'e2 \'f4\'e0\'e9\'eb books.csv.");\par
+\f2\lang1033     \}\par
+    static void ChangeUserRole()\par
+    \{\par
+        Console.Write("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 email \'ef\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'ff \'e4\'eb\'ff \'e8\'e7\'ec\'e5\'ed\'e5\'ed\'e8\'ff \'f0\'ee\'eb\'e8: ");\par
+\f2\lang1033         string email = Console.ReadLine();\par
+        if (usersRoles.ContainsKey(email))\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'c2\'e2\'e5\'e4\'e8\'f2\'e5 \'ed\'ee\'e2\'f3\'fe \'f0\'ee\'eb\'fc (client/admin): ");\par
+\f2\lang1033             string role = Console.ReadLine();\par
+            if (role == "client" || role == "admin")\par
+            \{\par
+                usersRoles[email] = role;\par
+                Console.WriteLine($"\f3\lang1049\'d0\'ee\'eb\'fc \'ef\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'ff \{email\} \'e8\'e7\'ec\'e5\'ed\'e5\'ed\'e0 \'ed\'e0 \{role\}.");\par
+\f2\lang1033             \}\par
+            else\par
+            \{\par
+                Console.WriteLine("\f3\lang1049\'cd\'e5\'e2\'e5\'f0\'ed\'e0\'ff \'f0\'ee\'eb\'fc.");\par
+\f2\lang1033             \}\par
+        \}\par
+        else\par
+        \{\par
+            Console.WriteLine("\f3\lang1049\'cf\'ee\'eb\'fc\'e7\'ee\'e2\'e0\'f2\'e5\'eb\'fc \'f1 \'f2\'e0\'ea\'e8\'ec email \'ed\'e5 \'ed\'e0\'e9\'e4\'e5\'ed.");\par
+\f2\lang1033         \}\par
+    \}\par
+
+\pard\sa200\sl276\slmult1\f4\fs22\lang9\par
+}
+ 
